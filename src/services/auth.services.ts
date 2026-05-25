@@ -3,7 +3,7 @@ import supabase from '../config/supabase.js';
 import jwt from 'jsonwebtoken';
 
 
-export const enrollPin = async (employeeId, rawPin) => {
+export const enrollPin = async (employeeId: any, rawPin: any) => {
     const saltRounds = 10;
     const hashedPin = await bcrypt.hash(rawPin, saltRounds);
 

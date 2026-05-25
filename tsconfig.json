@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    /* 1. Project Layout */
+    "rootDir": "./",             // Root of your project
+    "outDir": "./dist",          // Where compiled files will go
+    
+
+    /* 2. Language & Environment */
+    "target": "ESNext",
+    "module": "NodeNext",        // Best for modern Node + mixed JS/TS
+    "moduleResolution": "NodeNext",
+    "lib": ["ESNext"],
+    "types": ["node"],           // Standard Node types
+
+    /* 3. Mixed Project Support (CRITICAL) */
+    "allowJs": true,             // Allows you to keep your .js attendance logic
+    "checkJs": false,            // Don't report errors in .js files (keeps things quiet)
+    "esModuleInterop": true,     // Essential for importing CommonJS modules (like express)
+    "resolveJsonModule": true,
+
+    /* 4. Fixing the Red Lines from your Screenshots */
+    "verbatimModuleSyntax": false, // Set to false to stop the "import type" errors
+    "isolatedModules": true,
+    "skipLibCheck": true,          // Skips type-checking of libraries (speeds up project)
+
+    /* 5. Outputs for Debugging */
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    /* 6. Strictness Balance */
+    "strict": true,
+    "noImplicitAny": false,       // Temporary: makes migrating from JS easier
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["**/*.ts", "**/*.js"], // Tells TS to look at both file types
+  "exclude": ["node_modules", "dist"]
+}
