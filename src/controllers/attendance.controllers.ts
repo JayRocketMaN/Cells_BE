@@ -1,10 +1,11 @@
 // controllers/attendance.controller.ts
 import { Request, Response } from 'express';
 import * as attendanceService from '../services/attendance.services.js';
-import * as attendanceRepo from '../repos/attendance.repos.js';
+
 
 // 1. Handles Clock-in/Clock-out (PIN actions)
 export const handleStaffAction = async (req: Request, res: Response) => {
+    console.log("Request Body:", req.body);
     try {
         const { employeeId, pin, deviceName } = req.body;
         const result = await attendanceService.verifyAndProcessLog(employeeId, pin, deviceName);
