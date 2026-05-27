@@ -13,6 +13,6 @@ router.post('/action', attendanceController.handleStaffAction);
 
 // Route for Admin to see all logs
 router.get('/all', verifyAdmin, attendanceController.getAllLogs);
-router.delete('/delete-log/:id', verifyAdmin, verifySuperAdmin, attendanceController.deleteLog);
+//router.delete('/delete-log/:id', verifyAdmin, verifySuperAdmin, attendanceController.deleteLog);
 
 export default router;
