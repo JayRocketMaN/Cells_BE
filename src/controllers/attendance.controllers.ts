@@ -1,57 +1,53 @@
-// controllers/attendance.controller.ts
+// backend/src/controllers/attendance.controller.ts
 import { Request, Response } from 'express';
 import * as attendanceService from '../services/attendance.services.js';
 
-
-// 1. Handles Clock-in/Clock-out (PIN actions)
+/**
+ * 1. Handles Clock-in/Clock-out (PIN actions)
+ * Used by employees on the tablet/entry device.
+ */
 export const handleStaffAction = async (req: Request, res: Response) => {
     try {
         const { employeeId, pin, deviceName } = req.body;
         const result = await attendanceService.verifyAndProcessLog(employeeId, pin, deviceName);
+        
         res.status(200).json({ message: "Action recorded successfully", result });
     } catch (err: any) {
-        res.status(401).json({ error: err.message });
+        // Returns 401 for "Invalid PIN" or 500 for server errors
+        const statusCode = err.message === "Invalid PIN" ? 401 : 500;
+        res.status(statusCode).json({ error: err.message });
     }
 };
 
-// 2. Fetches all logs (Admin view)
-/*export const getAllLogs = async (req: Request, res: Response) => {
-    try {
-        // The service does the heavy lifting of fetching data
-        const logs = await attendanceService.getAttendanceLogs();
-        
-        // Return a clean 200 status with the logs
-        res.status(200).json(logs);
-    } catch (err: any) {
-        // Map any service-level errors to a 500 status
-        res.status(500).json({ error: err.message || "Failed to retrieve logs" });
-    }
-};*/
 /**
- * Admin view to fetch all logs.
- * Restricted by verifyAdmin middleware.
+ * 2. Fetches all logs (Admin Table View)
+ * Restricted by verifyAdmin middleware. Used for the general "All Logs" report.
  */
 export const getAllLogs = async (req: Request, res: Response) => {
     try {
-        // 1. Audit Log: Use the data attached by the middleware
+        // Audit Log: Identifies which admin is accessing the raw data
         const admin = (req as any).admin;
-        console.log(`[AUDIT] Logs requested by Admin: ${admin.email} (ID: ${admin.id})`);
+        console.log(`[AUDIT] Raw logs requested by Admin: ${admin.id}`);
 
-        // 2. Business Logic: Fetch the data
         const logs = await attendanceService.getAttendanceLogs();
-        
-        // 3. Response
         res.status(200).json(logs);
     } catch (err: any) {
         res.status(500).json({ error: err.message || "Failed to retrieve logs" });
     }
 };
 
-// 3. Fetches the Summary, Calendar, and Shifts for the UI cards
-export const getAttendanceReport = async (req: Request, res: Response) => {
+/**
+ * 3. Fetches Analytics (Summary Cards, Calendar, and Shifts)
+ * Route: GET /api/attendance/history (mapped from getAttendanceDashboardData)
+ */
+export const getEmployeeHistory = async (req: Request, res: Response) => {
     try {
-        // These come from the URL params: /api/attendance/report?employeeId=...
+        // Extracted from Query Params: ?employeeId=...&startDate=...&endDate=...
         const { employeeId, startDate, endDate } = req.query;
+
+        if (!employeeId || !startDate || !endDate) {
+            return res.status(400).json({ error: "Missing required query parameters: employeeId, startDate, endDate" });
+        }
 
         const report = await attendanceService.getAttendanceDashboardData(
             employeeId as string,
@@ -61,6 +57,6 @@ export const getAttendanceReport = async (req: Request, res: Response) => {
 
         res.status(200).json(report);
     } catch (err: any) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: err.message || "Failed to generate report" });
     }
 };
