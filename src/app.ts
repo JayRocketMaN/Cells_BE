@@ -15,8 +15,15 @@ dotenv.config();
 const app = express();
 
 // 2. Global Middleware
-app.use(cors());
 app.use(express.json()); // Essential for your Transaction POST requests
+app.use(cors({
+  origin: [
+    'http://localhost:3000', 
+    'https://vercel.app' // Add your frontend's live URL here later
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'admin-id']
+}));
 
 // 3. Mount Routes
 app.use('/api/attendance', attendanceRoutes);
