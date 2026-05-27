@@ -12,9 +12,12 @@ export const verifyAndProcessLog = async (employeeId: string, rawPin: string, de
     
     console.log('DEBUG: Comparing request PIN:', `'${rawPin}'`, 'against DB Hash:', `'${cred.hashed_pin}'`);
     const isMatch = await bcrypt.compare(String(rawPin), cred.hashed_pin.trim());
-    if (isMatch === false) { // Explicit check
+    console.log('Comparison successful:', isMatch); // This should now say true
+
+    if (!isMatch) {
         throw new Error("Invalid PIN");
     }
+
 
     console.log('DB HASH:', cred.hashed_pin);
     if (!isMatch) throw new Error("Invalid PIN");
