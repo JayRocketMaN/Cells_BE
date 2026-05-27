@@ -10,17 +10,14 @@ export const verifyAndProcessLog = async (employeeId: string, rawPin: string, de
     
     if (!cred) throw new Error("Credentials not found");
     
-    console.log('DEBUG: Comparing request PIN:', `'${rawPin}'`, 'against DB Hash:', `'${cred.hashed_pin}'`);
-    // Force to string and trim any accidental whitespace
-    const isMatch = await bcrypt.compare(String(rawPin).trim(), cred.hashed_pin.trim());
+   const isMatch = (String(rawPin).trim() === cred.hashed_pin.trim());
 
-    console.log('DEBUG FINAL:', {
-        receivedPin: rawPin,
-        dbHash: cred.hashed_pin,
-        result: isMatch
-    });
+    console.log('--- PLAIN TEXT TEST ---');
+    console.log('Received from Postman:', `'${rawPin}'`);
+    console.log('Found in Database:', `'${cred.hashed_pin}'`);
+    console.log('Direct Match Result:', isMatch);
 
-   if (!isMatch) throw new Error("Invalid PIN");
+    if (!isMatch) throw new Error("Invalid PIN");
 
 
 
