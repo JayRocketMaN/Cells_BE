@@ -10,6 +10,7 @@ export const verifyAndProcessLog = async (employeeId: string, rawPin: string, de
     
     if (!cred) throw new Error("Credentials not found");
     
+    console.log('DEBUG: Comparing request PIN:', `'${rawPin}'`, 'against DB Hash:', `'${cred.hashed_pin}'`);
     const isMatch = await bcrypt.compare(String(rawPin), cred.hashed_pin.trim());
     console.log('DB HASH:', cred.hashed_pin);
     if (!isMatch) throw new Error("Invalid PIN");
