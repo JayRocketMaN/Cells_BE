@@ -70,7 +70,6 @@ export const loginUser = async (email: string, password: string) => {
 };
 
 
-
 export const loginManagementUser = async (email: string, password_raw: string) => {
   // 1. Find user in the management_users table
   const { data: admin, error } = await supabase

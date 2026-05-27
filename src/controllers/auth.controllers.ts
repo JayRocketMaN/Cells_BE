@@ -39,3 +39,36 @@ export const login = async (req: Request, res: Response) => {
     res.status(401).json({ error: error.message });
   }
 };
+
+
+/**
+ * Handles the login for management users (Shift Managers & Owners)
+ */
+export const handleManagementLogin = async (req: Request, res: Response) => {
+    try {
+        const { email, password } = req.body;
+
+        // 1. Validation
+        if (!email || !password) {
+            return res.status(400).json({ 
+                error: "Email and password are required." 
+            });
+        }
+
+        // 2. Call the Management-specific login service
+        // This service uses the 'management_users' table and your plain-text check
+        const result = await authService.loginManagementUser(email, password);
+
+        // 3. Success Response
+        // Sends back the JWT token and the Super Admin status
+        res.status(200).json({
+            message: "Login successful",
+            token: result.token,
+            isSuperAdmin: result.isSuperAdmin
+        });
+
+    } catch (err: any) {
+        // Handle "Invalid email or password" or "Account not found"
+        res.status(401).json({ error: err.message });
+    }
+};
