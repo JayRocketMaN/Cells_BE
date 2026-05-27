@@ -10,7 +10,23 @@ export const verifyAndProcessLog = async (employeeId: string, rawPin: string, de
     
     if (!cred) throw new Error("Credentials not found");
     
-   const isMatch = (String(rawPin).trim() === cred.hashed_pin.trim());
+    //console.log('DEBUG: Comparing request PIN:', `'${rawPin}'`, 'against DB Hash:', `'${cred.hashed_pin}'`);
+    // Force to string and trim any accidental whitespace
+    /*const isMatch = await bcrypt.compare(String(rawPin).trim(), cred.hashed_pin.trim());
+
+    console.log('DEBUG FINAL:', {
+        receivedPin: rawPin,
+        dbHash: cred.hashed_pin,
+        result: isMatch
+    });
+
+   if (!isMatch) throw new Error("Invalid PIN");
+   
+
+    console.log('DB HASH:', cred.hashed_pin);
+    if (!isMatch) throw new Error("Invalid PIN");*/
+
+    const isMatch = (String(rawPin).trim() === cred.hashed_pin.trim());
 
     console.log('--- PLAIN TEXT TEST ---');
     console.log('Received from Postman:', `'${rawPin}'`);
@@ -23,6 +39,7 @@ export const verifyAndProcessLog = async (employeeId: string, rawPin: string, de
 
     console.log('DB HASH:', cred.hashed_pin);
     if (!isMatch) throw new Error("Invalid PIN");
+
 
     const now = new Date().toISOString();
     const today = now.split('T')[0] || '';

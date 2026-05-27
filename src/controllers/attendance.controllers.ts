@@ -15,12 +15,35 @@ export const handleStaffAction = async (req: Request, res: Response) => {
 };
 
 // 2. Fetches all logs (Admin view)
-export const getAllLogs = async (req: Request, res: Response) => {
+/*export const getAllLogs = async (req: Request, res: Response) => {
     try {
+        // The service does the heavy lifting of fetching data
         const logs = await attendanceService.getAttendanceLogs();
+        
+        // Return a clean 200 status with the logs
         res.status(200).json(logs);
     } catch (err: any) {
-        res.status(500).json({ error: err.message });
+        // Map any service-level errors to a 500 status
+        res.status(500).json({ error: err.message || "Failed to retrieve logs" });
+    }
+};*/
+/**
+ * Admin view to fetch all logs.
+ * Restricted by verifyAdmin middleware.
+ */
+export const getAllLogs = async (req: Request, res: Response) => {
+    try {
+        // 1. Audit Log: Use the data attached by the middleware
+        const admin = (req as any).admin;
+        console.log(`[AUDIT] Logs requested by Admin: ${admin.email} (ID: ${admin.id})`);
+
+        // 2. Business Logic: Fetch the data
+        const logs = await attendanceService.getAttendanceLogs();
+        
+        // 3. Response
+        res.status(200).json(logs);
+    } catch (err: any) {
+        res.status(500).json({ error: err.message || "Failed to retrieve logs" });
     }
 };
 

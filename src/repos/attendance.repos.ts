@@ -145,3 +145,16 @@ export const fetchAllLogs = async () => {
     if (error) throw error;
     return data;
 };
+
+
+
+export const findManagementUserById = async (adminId: string) => {
+    const { data, error } = await supabase
+        .from('management_users')
+        .select('id, is_super_admin')
+        .eq('id', adminId)
+        .maybeSingle();
+
+    if (error) throw error;
+    return data;
+};
