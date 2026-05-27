@@ -18,7 +18,7 @@ const app = express();
 app.use(express.json()); // Essential for your Transaction POST requests
 app.use(cors({
   origin: [
-    'http://localhost:3000', 
+    'https://onrender.com', 
     'https://vercel.app' // Add your frontend's live URL here later
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
