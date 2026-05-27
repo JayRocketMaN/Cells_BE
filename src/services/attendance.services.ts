@@ -11,12 +11,17 @@ export const verifyAndProcessLog = async (employeeId: string, rawPin: string, de
     if (!cred) throw new Error("Credentials not found");
     
     console.log('DEBUG: Comparing request PIN:', `'${rawPin}'`, 'against DB Hash:', `'${cred.hashed_pin}'`);
-    const isMatch = await bcrypt.compare(String(rawPin), cred.hashed_pin.trim());
-    console.log('Comparison successful:', isMatch); // This should now say true
+    // Force to string and trim any accidental whitespace
+    const isMatch = await bcrypt.compare(String(rawPin).trim(), cred.hashed_pin.trim());
 
-    if (!isMatch) {
-        throw new Error("Invalid PIN");
-    }
+    console.log('DEBUG FINAL:', {
+        receivedPin: rawPin,
+        dbHash: cred.hashed_pin,
+        result: isMatch
+    });
+
+   if (!isMatch) throw new Error("Invalid PIN");
+
 
 
     console.log('DB HASH:', cred.hashed_pin);
