@@ -148,13 +148,13 @@ export const fetchAllLogs = async () => {
 
 
 
+// ADDED VALIDATION HERE - Used by Middleware
 export const findManagementUserById = async (adminId: string) => {
+    if (!adminId || adminId === 'undefined') return null; // Return null instead of crashing
     const { data, error } = await supabase
-        .from('management_users')
-        .select('id, is_super_admin')
-        .eq('id', adminId)
-        .maybeSingle();
-
+    .from('management_users')
+    .select('id, is_super_admin')
+    .eq('id', adminId).maybeSingle();
     if (error) throw error;
     return data;
 };
