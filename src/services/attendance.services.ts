@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { AttendanceLog } from '../types/database.js';
 import { calculateNetHours } from '../utils/attendance.utils.js';
 import * as attendanceRepo from '../repos/attendance.repos.js';
@@ -12,6 +12,10 @@ export const verifyAndProcessLog = async (employeeId: string, rawPin: string, de
     
     console.log('DEBUG: Comparing request PIN:', `'${rawPin}'`, 'against DB Hash:', `'${cred.hashed_pin}'`);
     const isMatch = await bcrypt.compare(String(rawPin), cred.hashed_pin.trim());
+    if (isMatch === false) { // Explicit check
+        throw new Error("Invalid PIN");
+    }
+
     console.log('DB HASH:', cred.hashed_pin);
     if (!isMatch) throw new Error("Invalid PIN");
 
