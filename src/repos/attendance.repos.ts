@@ -147,7 +147,6 @@ export const fetchAllLogs = async () => {
 };
 
 
-
 // ADDED VALIDATION HERE - Used by Middleware
 export const findManagementUserById = async (adminId: string) => {
     if (!adminId || adminId === 'undefined') return null; // Return null instead of crashing
