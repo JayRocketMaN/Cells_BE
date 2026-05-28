@@ -136,15 +136,25 @@ export const fetchLogsByDateRange = async (employeeId: string, start: string, en
 /**
  * 8. Fetches all logs with joined employee details for the dashboard.
  */
+
+// In your backend (e.g., attendance.controllers.js)
 export const fetchAllLogs = async () => {
     const { data, error } = await supabase
         .from('attendance_logs')
-        .select(`*, employees(full_name, role)`)
+        // Using 'employees!inner' forces the join to be correct
+        .select(`
+            *,
+            employees!inner(full_name, role)
+        `) 
         .order('log_date', { ascending: false });
     
-    if (error) throw error;
+    if (error) {
+        console.error("Supabase Query Error:", error.message);
+        throw error;
+    }
     return data;
 };
+
 
 
 
