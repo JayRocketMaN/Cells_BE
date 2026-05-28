@@ -6,14 +6,14 @@ import { authMiddleware, verifyAdmin, verifySuperAdmin } from '../middleware/aut
 const router = express.Router();
 
 // Route for the Dashboard (Hours Worked page)
-router.get('/report', attendanceController.getEmployeeHistory);
+router.get('/report', verifyAdmin, attendanceController.getEmployeeHistory);
 
 // Route for the "Clock In/Out" actions (PIN pads)
 router.post('/action', attendanceController.handleStaffAction);
 
 // Route for Admin to see all logs
-router.get('/all', attendanceController.getAllLogs);
-router.get('/history', attendanceController.getEmployeeHistory);
+router.get('/all', verifyAdmin, attendanceController.getAllLogs);
+router.get('/history', verifyAdmin, attendanceController.getEmployeeHistory);
 //router.delete('/delete-log/:id', verifyAdmin, verifySuperAdmin, attendanceController.deleteLog);
 
 export default router;
