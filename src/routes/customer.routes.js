@@ -9,7 +9,7 @@ router.use(authMiddleware);
 router.get('/dashboard', customerController.getDashboard);
 router.get('/status/:status', customerController.getByStatus);
 router.post('/transaction', customerController.postTransaction);
-router.post('/', authMiddleware, customerController.createCustomer);
+router.post('/', customerController.createCustomer);
 router.get('/:id', customerController.getOneCustomer);
 
 
