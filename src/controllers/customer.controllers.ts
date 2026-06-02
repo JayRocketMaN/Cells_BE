@@ -110,11 +110,11 @@ import * as customerService from '../services/customer.services.js';
 import { CustomerStatus } from '../types/database.js';
 
 /**
- * STRICT: Dashboard requires a verified session/token
+ * STRICT: Dashboard requires a verified session/token.
  */
 export const getDashboard = async (req: Request, res: Response) => {
   try {
-    const companyId = req.user?.companyId; // Force check from Token only
+    const companyId = req.user?.companyId; 
     if (!companyId) return res.status(401).json({ error: "Unauthorized: Dashboard access requires login" });
 
     const customers = await customerService.getCustomers(companyId);
@@ -125,13 +125,11 @@ export const getDashboard = async (req: Request, res: Response) => {
 };
 
 /**
- * SEAMLESS: POS Registration allows Company ID in body
+ * SEAMLESS: POS Registration allows Company ID in body.
  */
 export const createCustomer = async (req: Request, res: Response) => {
   try {
-    // Check Body (POS) first, fallback to Token (Admin)
     const companyId = req.body.company_id || req.user?.companyId;
-    
     if (!companyId) return res.status(400).json({ error: "Missing company_id" });
 
     const { company_id, ...customerData } = req.body;
@@ -144,7 +142,30 @@ export const createCustomer = async (req: Request, res: Response) => {
 };
 
 /**
- * STRICT: Adding a transaction usually happens at a logged-in POS terminal
+ * SEARCH: Find customer by Display ID (e.g., CST-1229)
+ * Used by POS and Reservations for quick lookups.
+ */
+export const searchCustomer = async (req: Request, res: Response) => {
+  try {
+    // Check query params first for GET requests
+    const companyId = (req.query.company_id as string) || req.user?.companyId;
+    const displayId = req.query.displayId as string;
+
+    if (!companyId) return res.status(400).json({ error: "Missing company_id" });
+    if (!displayId) return res.status(400).json({ error: "Missing displayId parameter" });
+
+    const customer = await customerService.getCustomerByDisplayId(companyId, displayId);
+    
+    if (!customer) return res.status(404).json({ error: `Customer ${displayId} not found` });
+
+    return res.status(200).json(customer);
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+/**
+ * STRICT: Adding a transaction.
  */
 export const postTransaction = async (req: Request, res: Response) => {
   try {
@@ -152,6 +173,7 @@ export const postTransaction = async (req: Request, res: Response) => {
     const { customerId, amount } = req.body;
 
     if (!companyId) return res.status(401).json({ error: "Unauthorized" });
+    if (!customerId || !amount) return res.status(400).json({ error: "Missing required fields" });
 
     const transaction = await customerService.addTransaction(companyId, customerId, amount);
     res.status(201).json({ message: "Transaction recorded", data: transaction });
@@ -161,7 +183,7 @@ export const postTransaction = async (req: Request, res: Response) => {
 };
 
 /**
- * STRICT: Viewing a single customer profile
+ * STRICT: Viewing a single customer profile by UUID.
  */
 export const getOneCustomer = async (req: Request, res: Response) => {
   try {
@@ -172,10 +194,33 @@ export const getOneCustomer = async (req: Request, res: Response) => {
     if (!id) return res.status(400).json({ error: "Missing or invalid customer id" });
 
     const customer = await customerService.getCustomerById(companyId, id);
+    
     if (!customer) return res.status(404).json({ error: "Customer not found" });
 
     return res.status(200).json(customer);
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
+  }
+};
+
+/**
+ * GET BY STATUS: Filter dashboard (Bronze, Gold, etc).
+ */
+export const getByStatus = async (req: Request, res: Response) => {
+  try {
+    const companyId = req.user?.companyId;
+    const { status } = req.params;
+
+    if (!companyId) return res.status(401).json({ error: "Unauthorized" });
+
+    const validStatuses: CustomerStatus[] = ['Bronze', 'Silver', 'Gold', 'Platinum'];
+    if (!validStatuses.includes(status as CustomerStatus)) {
+      return res.status(400).json({ error: `Invalid status: ${status}` });
+    }
+
+    const customers = await customerService.getByStatus(companyId, status as CustomerStatus);
+    res.status(200).json(customers);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
   }
 };
