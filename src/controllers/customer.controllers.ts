@@ -110,17 +110,12 @@ import * as customerService from '../services/customer.services.js';
 import { CustomerStatus } from '../types/database.js';
 
 /**
- * HELPER: Extracts Company ID from Body, Query, or Token
- * This makes the functions work for both POS (Seamless) and Dashboard (Secure).
+ * STRICT: Dashboard requires a verified session/token
  */
-const getCompanyId = (req: Request) => {
-  return req.body.company_id || req.query.company_id || req.user?.companyId;
-};
-
 export const getDashboard = async (req: Request, res: Response) => {
   try {
-    const companyId = getCompanyId(req);
-    if (!companyId) return res.status(400).json({ error: "Missing company_id" });
+    const companyId = req.user?.companyId; // Force check from Token only
+    if (!companyId) return res.status(401).json({ error: "Unauthorized: Dashboard access requires login" });
 
     const customers = await customerService.getCustomers(companyId);
     return res.status(200).json(customers);
@@ -129,53 +124,16 @@ export const getDashboard = async (req: Request, res: Response) => {
   }
 };
 
-export const getByStatus = async (req: Request, res: Response) => {
-  try {
-    const companyId = getCompanyId(req);
-    const { status } = req.params;
-
-    if (!companyId) return res.status(400).json({ error: "Missing company_id" });
-
-    const validStatuses: CustomerStatus[] = ['Bronze', 'Silver', 'Gold', 'Platinum'];
-    if (!validStatuses.includes(status as CustomerStatus)) {
-      return res.status(400).json({ error: `Invalid status: ${status}` });
-    }
-
-    const customers = await customerService.getByStatus(companyId, status as CustomerStatus);
-    res.status(200).json(customers);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-export const postTransaction = async (req: Request, res: Response) => {
-  try {
-    const companyId = getCompanyId(req);
-    const { customerId, amount } = req.body;
-
-    if (!companyId) return res.status(400).json({ error: "Missing company_id" });
-    if (!customerId || !amount) return res.status(400).json({ error: "Missing required fields" });
-
-    const transaction = await customerService.addTransaction(companyId, customerId, amount);
-    
-    res.status(201).json({
-      message: "Transaction recorded.",
-      data: transaction
-    });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
+/**
+ * SEAMLESS: POS Registration allows Company ID in body
+ */
 export const createCustomer = async (req: Request, res: Response) => {
   try {
-    const companyId = getCompanyId(req);
+    // Check Body (POS) first, fallback to Token (Admin)
+    const companyId = req.body.company_id || req.user?.companyId;
     
-    if (!companyId) {
-      return res.status(400).json({ error: "Missing company_id for registration" });
-    }
+    if (!companyId) return res.status(400).json({ error: "Missing company_id" });
 
-    // Clean data: remove company_id from body so it doesn't duplicate in service
     const { company_id, ...customerData } = req.body;
     const customer = await customerService.createCustomer(companyId, customerData);
     
@@ -185,14 +143,35 @@ export const createCustomer = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * STRICT: Adding a transaction usually happens at a logged-in POS terminal
+ */
+export const postTransaction = async (req: Request, res: Response) => {
+  try {
+    const companyId = req.user?.companyId || req.body.company_id;
+    const { customerId, amount } = req.body;
+
+    if (!companyId) return res.status(401).json({ error: "Unauthorized" });
+
+    const transaction = await customerService.addTransaction(companyId, customerId, amount);
+    res.status(201).json({ message: "Transaction recorded", data: transaction });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/**
+ * STRICT: Viewing a single customer profile
+ */
 export const getOneCustomer = async (req: Request, res: Response) => {
   try {
-    const companyId = getCompanyId(req);
-    const { id } = req.params;
+    const companyId = req.user?.companyId; 
+    if (!companyId) return res.status(401).json({ error: "Unauthorized" });
 
-    if (!companyId) return res.status(400).json({ error: "Missing company_id" });
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    if (!id) return res.status(400).json({ error: "Missing or invalid customer id" });
 
-    const customer = await customerService.getCustomerById(companyId, id as string);
+    const customer = await customerService.getCustomerById(companyId, id);
     if (!customer) return res.status(404).json({ error: "Customer not found" });
 
     return res.status(200).json(customer);

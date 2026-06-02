@@ -103,9 +103,11 @@ import {
 
 /**
  * GET ALL CUSTOMERS
- * Used by the Dashboard to show the leaderboard/list.
+ * STRICT: Enforces companyId check before hitting Supabase.
  */
 export const getCustomers = async (companyId: string): Promise<ICustomer[]> => {
+  if (!companyId) throw new Error("Security Error: companyId is required for Dashboard access");
+
   const { data, error } = await supabase
     .from('customers')
     .select('*')
@@ -118,23 +120,24 @@ export const getCustomers = async (companyId: string): Promise<ICustomer[]> => {
 
 /**
  * CREATE CUSTOMER (POS & RESERVATION OPTIMISED)
- * This handles the seamless creation from the counter or table.
+ * SEAMLESS: Allows partial data (like just name/phone) for quick entry.
  */
 export const createCustomer = async (
   companyId: string, 
-  customerData: Partial<CreateCustomerInput> // Changed to Partial to allow quick POS entry
+  customerData: Partial<CreateCustomerInput>
 ): Promise<ICustomer> => {
+  if (!companyId) throw new Error("Security Error: companyId is required for registration");
+
   const { data, error } = await supabase
     .from('customers')
     .insert([{ 
       ...customerData, 
-      company_id: companyId // Explicitly link to the restaurant/company
+      company_id: companyId 
     }])
     .select()
     .single();
 
   if (error) {
-    // Better error logging for debugging POS failures
     console.error(`Supabase Insert Error for Company ${companyId}:`, error.message);
     throw new Error(`Insert Error: ${error.message}`);
   }
@@ -143,13 +146,15 @@ export const createCustomer = async (
 
 /**
  * ADD TRANSACTION
- * Seamlessly record a sale at the POS.
+ * Records sales from POS.
  */
 export const addTransaction = async (
   companyId: string, 
   customerId: string, 
   amount: number
 ): Promise<ITransaction> => {
+  if (!companyId) throw new Error("Security Error: companyId is required for transactions");
+
   const { data, error } = await supabase
     .from('transactions')
     .insert([{
@@ -161,7 +166,6 @@ export const addTransaction = async (
     .single();
 
   if (error) throw new Error(`Transaction Error: ${error.message}`);
-  
   return data;
 };
 
@@ -172,6 +176,8 @@ export const getByStatus = async (
   companyId: string, 
   status: CustomerStatus
 ): Promise<ICustomer[]> => {
+  if (!companyId) throw new Error("Security Error: companyId is required");
+
   const { data, error } = await supabase
     .from('customers')
     .select('*')
@@ -182,18 +188,36 @@ export const getByStatus = async (
   return data as ICustomer[];
 };
 
-/**
- * GET ONE CUSTOMER
- * Used to pull up a profile quickly during a reservation or sale.
- */
-export const getCustomerById = async (companyId: string, customerId: string) => {
+export const getCustomerById = async (companyId: string, customerId: string): Promise<ICustomer | null> => {
+  if (!companyId) throw new Error("Security Error: companyId is required");
+
   const { data, error } = await supabase
     .from('customers')
     .select('*')
-    .eq('company_id', companyId) 
-    .eq('id', customerId)        
+    .eq('company_id', companyId)
+    .eq('id', customerId)
     .single();
 
-  if (error) throw error;
+  if (error) return null;
+  return data as ICustomer | null;
+};
+
+/**
+ * GET ONE CUSTOMER
+ * STRICT: Used for profile viewing.
+ */
+
+export const getCustomerByDisplayId = async (companyId: string, displayId: string) => {
+  if (!companyId) throw new Error("companyId required");
+
+  const { data, error } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('company_id', companyId)
+    .eq('display_id', displayId.toUpperCase()) // Ensure it matches 'CST-XXXX'
+    .single();
+
+  if (error) return null; // Return null so the UI can show "Not Found"
   return data;
 };
+
