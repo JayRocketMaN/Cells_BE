@@ -24,4 +24,7 @@ router.get('/search', customerController.searchCustomer);
 // GET ONE BY UUID (STRICT)
 router.get('/:id', authMiddleware.authMiddleware, customerController.getOneCustomer);
 
+router.get('/history', authMiddleware.authMiddleware, customerController.getAllTransactions);
+
+
 export default router;

@@ -167,18 +167,52 @@ export const searchCustomer = async (req: Request, res: Response) => {
 /**
  * STRICT: Adding a transaction.
  */
+/**
+ * ADD TRANSACTION
+ * Logic: Receives Amount, Payment Method, and Status from the POS.
+ */
 export const postTransaction = async (req: Request, res: Response) => {
   try {
-    const companyId = req.user?.companyId || req.body.company_id;
-    const { customerId, amount } = req.body;
+    // 1. Get Company ID (Seamless check)
+    const companyId = req.body.company_id || req.user?.companyId;
+    
+    // 2. Destructure the new ENUM-based fields
+    const { customerId, amount, paymentMethod, status } = req.body;
 
-    if (!companyId) return res.status(401).json({ error: "Unauthorized" });
-    if (!customerId || !amount) return res.status(400).json({ error: "Missing required fields" });
+    if (!companyId) return res.status(400).json({ error: "Missing company_id" });
+    if (!customerId || !amount) return res.status(400).json({ error: "Missing customerId or amount" });
 
-    const transaction = await customerService.addTransaction(companyId, customerId, amount);
-    res.status(201).json({ message: "Transaction recorded", data: transaction });
+    // 3. Pass to service (Service now handles the DB ENUMs)
+    const transaction = await customerService.addTransaction(
+      companyId, 
+      customerId, 
+      amount,
+      paymentMethod, // e.g., 'POS'
+      status         // e.g., 'Successful'
+    );
+    
+    res.status(201).json({
+      message: "Transaction recorded successfully.",
+      data: transaction
+    });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+/**
+ * GET ALL TRANSACTIONS
+ * Logic: Returns the full history for the Transactions Page table.
+ */
+export const getAllTransactions = async (req: Request, res: Response) => {
+  try {
+    const companyId = req.query.company_id as string || req.user?.companyId;
+    if (!companyId) return res.status(400).json({ error: "Missing company_id" });
+
+    const transactions = await customerService.getTransactions(companyId);
+    return res.status(200).json(transactions);
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
   }
 };
 

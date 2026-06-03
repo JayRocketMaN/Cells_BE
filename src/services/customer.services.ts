@@ -151,16 +151,20 @@ export const createCustomer = async (
 export const addTransaction = async (
   companyId: string, 
   customerId: string, 
-  amount: number
+  amount: number,
+  paymentMethod: string = 'Cash', 
+  status: string = 'Successful'
 ): Promise<ITransaction> => {
-  if (!companyId) throw new Error("Security Error: companyId is required for transactions");
+  if (!companyId) throw new Error("Security Error: companyId is required");
 
   const { data, error } = await supabase
     .from('transactions')
     .insert([{
       company_id: companyId,
       customer_id: customerId,
-      amount: amount
+      amount: amount,
+      payment_method: paymentMethod, // Will fail if not in Enum
+      status: status                 // Will fail if not in Enum
     }])
     .select()
     .single();
@@ -168,6 +172,40 @@ export const addTransaction = async (
   if (error) throw new Error(`Transaction Error: ${error.message}`);
   return data;
 };
+
+/**
+ * GET TRANSACTIONS
+ * Logic: Fetches all transactions for a company and "joins" the customer table 
+ * to get the name and CST-ID for the dashboard table.
+ */
+export const getTransactions = async (companyId: string) => {
+  if (!companyId) throw new Error("Security Error: companyId is required");
+
+  const { data, error } = await supabase
+    .from('transactions')
+    .select(`
+      id,
+      amount,
+      payment_method,
+      status,
+      created_at,
+      customers (
+        full_name,
+        display_id
+      )
+    `)
+    .eq('company_id', companyId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Supabase Fetch Error:", error.message);
+    throw new Error(`Fetch Error: ${error.message}`);
+  }
+
+  return data;
+};
+
+
 
 /**
  * SEGMENTED SEARCH
