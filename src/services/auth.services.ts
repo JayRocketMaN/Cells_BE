@@ -71,20 +71,22 @@ export const loginUser = async (email: string, password: string) => {
 
 
 export const loginManagementUser = async (email: string, password_raw: string) => {
-  // 1. Find user in the management_users table
   const { data: admin, error } = await supabase
     .from('management_users')
-    .select('id, password_hash, is_super_admin, company_id') // Use password_hash from your schema
-    .eq('email', email)
+    .select('id, password_hash, is_super_admin, company_id') 
+    .eq('email', email.trim().toLowerCase())
     .single();
 
   if (error || !admin) throw new Error("Invalid email or password");
 
-  // 2. PLAIN TEXT comparison (Temporary fix for your bcrypt issues)
-  const isMatch = (password_raw.trim() === admin.password_hash.trim());
+  // Comparison logic
+  const isMatch = password_raw.trim() === admin.password_hash.trim();
   if (!isMatch) throw new Error("Invalid email or password");
 
-  // 3. Generate JWT with the 'admin' flag
+  if (!admin.company_id) {
+    throw new Error("Login failed: User account is not linked to a company.");
+  }
+
   const token = jwt.sign(
     {
       id: admin.id,
@@ -96,7 +98,7 @@ export const loginManagementUser = async (email: string, password_raw: string) =
     { expiresIn: '8h' }
   );
 
-  return { token, companyId: admin.company_id, isAdmin: true, isSuperAdmin: admin.is_super_admin };
+  return { token, companyId: admin.company_id, isSuperAdmin: admin.is_super_admin };
 };
 
 export const checkManagementAccess = async (adminId: string) => {
