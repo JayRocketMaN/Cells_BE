@@ -74,7 +74,7 @@ export const loginManagementUser = async (email: string, password_raw: string) =
   // 1. Find user in the management_users table
   const { data: admin, error } = await supabase
     .from('management_users')
-    .select('id, password_hash, is_super_admin') // Use password_hash from your schema
+    .select('id, password_hash, is_super_admin, company_id') // Use password_hash from your schema
     .eq('email', email)
     .single();
 
@@ -86,18 +86,18 @@ export const loginManagementUser = async (email: string, password_raw: string) =
 
   // 3. Generate JWT with the 'admin' flag
   const token = jwt.sign(
-    { 
-        id: admin.id, 
-        isAdmin: true, 
-        isSuperAdmin: admin.is_super_admin 
+    {
+      id: admin.id,
+      companyId: admin.company_id,
+      isAdmin: true,
+      isSuperAdmin: admin.is_super_admin,
     },
     process.env.JWT_SECRET as string,
     { expiresIn: '8h' }
   );
 
-  return { token, isSuperAdmin: admin.is_super_admin };
+  return { token, companyId: admin.company_id, isAdmin: true, isSuperAdmin: admin.is_super_admin };
 };
-
 
 export const checkManagementAccess = async (adminId: string) => {
     const { data, error } = await supabase

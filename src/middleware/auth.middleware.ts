@@ -73,7 +73,7 @@ export const verifyAdmin = async (req: Request, res: Response, next: NextFunctio
 
         // 4. DB Check: Fetch full record to get 'is_super_admin' status
         // This avoids the "Invalid UUID" error by using the ID from the TOKEN
-        const admin = await authService.checkManagementAccess(decoded.id);
+        const admin = await (authService as any).checkManagementAccess(decoded.id);
 
         if (!admin) {
             return res.status(403).json({ error: "Access denied: Management account inactive" });
