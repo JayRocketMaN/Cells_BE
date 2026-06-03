@@ -69,37 +69,40 @@ export const loginUser = async (email: string, password: string) => {
   return { token, companyId: user.company_id };
 };
 
-
 export const loginManagementUser = async (email: string, password_raw: string) => {
+  console.log(`--- Login Attempt: ${email} ---`);
+
   const { data: admin, error } = await supabase
     .from('management_users')
     .select('id, password_hash, is_super_admin, company_id') 
     .eq('email', email.trim().toLowerCase())
     .single();
 
-  if (error || !admin) throw new Error("Invalid email or password");
+  if (error || !admin) {
+    console.error("DB Error or User Not Found:", error?.message || "No user record");
+    throw new Error("Invalid email or password");
+  }
 
-  // Comparison logic
+  // LOG THE COMPARISON (Check these in Render Logs)
+  console.log(`Input Password: [${password_raw.trim()}]`);
+  console.log(`DB Password:    [${admin.password_hash.trim()}]`);
+
   const isMatch = password_raw.trim() === admin.password_hash.trim();
-  if (!isMatch) throw new Error("Invalid email or password");
-
-  if (!admin.company_id) {
-    throw new Error("Login failed: User account is not linked to a company.");
+  
+  if (!isMatch) {
+    console.error("Password Mismatch Detected");
+    throw new Error("Invalid email or password");
   }
 
   const token = jwt.sign(
-    {
-      id: admin.id,
-      companyId: admin.company_id,
-      isAdmin: true,
-      isSuperAdmin: admin.is_super_admin,
-    },
+    { id: admin.id, companyId: admin.company_id, isAdmin: true, isSuperAdmin: admin.is_super_admin },
     process.env.JWT_SECRET as string,
     { expiresIn: '8h' }
   );
 
   return { token, companyId: admin.company_id, isSuperAdmin: admin.is_super_admin };
 };
+
 
 export const checkManagementAccess = async (adminId: string) => {
     const { data, error } = await supabase
