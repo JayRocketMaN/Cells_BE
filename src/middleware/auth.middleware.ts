@@ -20,20 +20,25 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   }
 
   try {
-    // We cast to 'any' here just during the verify step...
-    const decoded = jwt.verify(token, secret) as any;
-    
-    // ...but because of your express.d.ts, 'req.user' is already typed!
-    // This assignment is now safe and will have autocomplete.
-    req.user = {
-        id: decoded.id,
-        companyId: decoded.companyId
-    };
-    
-    next();
-  } catch (error) {
-    return res.status(403).json({ error: "Invalid token" });
+  const decoded = jwt.verify(token, secret) as any;
+  
+  // Use a fallback to ensure companyId is NEVER undefined
+  const companyId = decoded.companyId || decoded.company_id;
+
+  if (!companyId) {
+    console.error("Token verified, but no companyId found in payload");
+    return res.status(401).json({ error: "Invalid token payload: companyId missing" });
   }
+
+  req.user = {
+      id: decoded.id,
+      companyId: companyId
+  };
+  
+  next();
+} catch (error) {
+  return res.status(403).json({ error: "Invalid or expired token" });
+}
 };
 
 /**
