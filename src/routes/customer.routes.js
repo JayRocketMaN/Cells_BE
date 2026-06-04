@@ -4,27 +4,17 @@ import * as authMiddleware from '../middleware/auth.middleware.js';
 
 const router = Router();
 
-// Dashboard & Stats (STRICT - Requires Token)
+// 1. STATIC ROUTES (Specific paths first)
 router.get('/dashboard', authMiddleware.authMiddleware, customerController.getDashboard);
+router.get('/history', authMiddleware.authMiddleware, customerController.getAllTransactions); // MOVED UP HERE
+router.get('/search', customerController.searchCustomer); // MOVED UP HERE
 router.get('/status/:status', authMiddleware.authMiddleware, customerController.getByStatus);
 
-// Seamless Registration (SEAMLESS - POS/Reservation)
+// 2. POST ROUTES
 router.post('/', customerController.createCustomer);
-
-// Search & Transactions (SEAMLESS/STRICT)
 router.post('/transaction', customerController.postTransaction);
 
-/** 
- * SEARCH BY DISPLAY ID
- * Logic: Must come BEFORE /:id so it doesn't get captured as a parameter.
- * Usage: GET /api/customers/search?displayId=CST-1229
- */
-router.get('/search', customerController.searchCustomer);
-
-// GET ONE BY UUID (STRICT)
+// 3. DYNAMIC ROUTES (Catch-all paths last)
 router.get('/:id', authMiddleware.authMiddleware, customerController.getOneCustomer);
-
-router.get('/history', authMiddleware.authMiddleware, customerController.getAllTransactions);
-
 
 export default router;
