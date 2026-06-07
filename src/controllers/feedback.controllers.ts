@@ -14,9 +14,15 @@ export const postFeedback = async (req: Request, res: Response) => {
         customer_id: customerId 
     });
 
-    // GOOGLE REVIEW FUNNEL: 
-    // Redirect only happy customers (4-5 stars) to Google
-    const googleReviewUrl = `https://google.com`;
+    /** 
+     * GOOGLE REVIEW FUNNEL: 
+     * Uses the Place ID from .env to build the specific "Write a Review" link.
+     */
+    const placeId = process.env.GOOGLE_PLACE_ID;    
+    const googleReviewUrl = `https://google.com{placeId}`;
+
+    
+    // Logic: Redirect only happy customers (4-5 stars) to Google
     const shouldPromptGoogle = rating >= 4;
 
     res.status(201).json({
@@ -45,6 +51,8 @@ export const getStats = async (req: Request, res: Response) => {
 export const getReviewList = async (req: Request, res: Response) => {
   try {
     const companyId = req.query.company_id as string || req.user?.companyId;
+    if (!companyId) return res.status(400).json({ error: "Missing company_id" });
+
     const reviews = await feedbackService.getAllReviews(companyId as string);
     res.status(200).json(reviews);
   } catch (error: any) {
