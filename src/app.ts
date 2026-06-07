@@ -8,6 +8,7 @@ import attendanceRoutes from './routes/attendance.routes.js';
 import customerRoutes from './routes/customer.routes.js'; // <--- Added your new routes
 import companyRoutes from './routes/company.routes.js';
 import authRoutes from './routes/auth.routes.js';
+import feedbackRoutes from './routes/feedback.routes.js';
 
 // Initialize environment variables
 dotenv.config();
@@ -30,6 +31,7 @@ app.use('/api/ingredients', ingredientRoutes);
 app.use('/api/customers', customerRoutes); // <--- Mounted your new Customer API
 app.use('/api/companies', companyRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 
 // 4. Health Check
