@@ -19,7 +19,8 @@ const app = express();
 app.use(express.json()); // Essential for your Transaction POST requests
 app.use(cors({
   origin: [
-    'http://localhost:3000', 
+    'http://localhost:3000',
+    'http://localhost:3026',
     ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', 'admin-id']
