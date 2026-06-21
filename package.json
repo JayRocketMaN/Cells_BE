@@ -4,9 +4,10 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "esbuild server.ts --bundle --platform=node --format=esm --target=node20 --packages=external --outfile=dist/server.js",
     "start": "node dist/server.js",
-    "dev": "tsx watch server.ts"
+    "dev": "tsx watch server.ts",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -21,9 +22,10 @@
     "jsonwebtoken": "^9.0.3"
   },
   "devDependencies": {
-    "@types/bcrypt": "^6.0.0",
+    "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.6",
     "@types/node": "^25.9.1",
+    "esbuild": "^0.28.1",
     "typescript": "^6.0.3"
   }
 }

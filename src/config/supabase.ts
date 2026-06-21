@@ -1,5 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
 import 'dotenv/config';
+import { createClient } from '@supabase/supabase-js';
+
 
 // Add the '!' at the end of the variables
 const supabaseUrl = process.env.SUPABASE_URL!;

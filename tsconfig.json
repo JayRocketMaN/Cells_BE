@@ -1,39 +1,39 @@
 {
   "compilerOptions": {
     /* 1. Project Layout */
-    "rootDir": "./",             // Root of your project
-    "outDir": "./dist",          // Where compiled files will go
-    
+    "rootDir": "./",
+    "outDir": "./dist",
 
     /* 2. Language & Environment */
     "target": "ESNext",
-    "module": "NodeNext",        // Best for modern Node + mixed JS/TS
-    "moduleResolution": "NodeNext",
-    "lib": ["ESNext"],
-    "types": ["node"],           // Standard Node types
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
 
-    /* 3. Mixed Project Support (CRITICAL) */
-    "allowJs": true,             // Allows you to keep your .js attendance logic
-    "checkJs": false,            // Don't report errors in .js files (keeps things quiet)
-    "esModuleInterop": true,     // Essential for importing CommonJS modules (like express)
+    "lib": ["ESNext"],
+    "types": ["node"],
+
+    /* 3. Mixed Project Support */
+    "allowJs": true,
+    "checkJs": false,
+    "esModuleInterop": true,
     "resolveJsonModule": true,
 
-    /* 4. Fixing the Red Lines from your Screenshots */
-    "verbatimModuleSyntax": false, // Set to false to stop the "import type" errors
+    /* 4. Speed & Compatibility */
+    "verbatimModuleSyntax": false,
     "isolatedModules": true,
-    "skipLibCheck": true,          // Skips type-checking of libraries (speeds up project)
+    "skipLibCheck": true,
 
     /* 5. Outputs for Debugging */
     "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
+    "declaration": false,
+    "declarationMap": false,
 
     /* 6. Strictness Balance */
     "strict": true,
-    "noImplicitAny": false,       // Temporary: makes migrating from JS easier
+    "noImplicitAny": false,
     "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["**/*.ts", "**/*.js"], // Tells TS to look at both file types
+  "include": ["**/*.ts", "**/*.js"],
   "exclude": ["node_modules", "dist"]
 }
