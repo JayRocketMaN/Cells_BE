@@ -1,34 +1,35 @@
 {
   "compilerOptions": {
-    /* 1. Project Layout */
+    /*Project Layout */
     "rootDir": "./",
     "outDir": "./dist",
 
-    /* 2. Language & Environment */
+    /*Language & Environment */
     "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "module": "NodeNext",               // Required for modern Node.js ESM execution
+    "moduleResolution": "NodeNext",     // Correctly evaluates relative extensions like .js
 
     "lib": ["ESNext"],
     "types": ["node"],
 
-    /* 3. Mixed Project Support */
+    /*Mixed Project Support */
     "allowJs": true,
     "checkJs": false,
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
 
-    /* 4. Speed & Compatibility */
+    /*Speed & Compatibility */
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
-    "skipLibCheck": true,
+    "skipLibCheck": true,               // Keeps CI builds extremely fast
 
-    /* 5. Outputs for Debugging */
+    /*Outputs for Debugging */
     "sourceMap": true,
     "declaration": false,
     "declarationMap": false,
 
-    /* 6. Strictness Balance */
+    /*Strictness Balance */
     "strict": true,
     "noImplicitAny": false,
     "noUncheckedIndexedAccess": true,

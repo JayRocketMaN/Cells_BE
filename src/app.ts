@@ -1,13 +1,12 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-
-// 1. Local Imports (Remember the .js extension rule for NodeNext)
 import ingredientRoutes from './routes/ingredient.routes.js';
 import attendanceRoutes from './routes/attendance.routes.js';
-import customerRoutes from './routes/customer.routes.js'; // <--- Added your new routes
-import companyRoutes from './routes/company.routes.js';
+import customerRoutes from './routes/customer.routes.js'; // 
 import authRoutes from './routes/auth.routes.js';
+import companyRoutes from './routes/company.routes.js';
 import feedbackRoutes from './routes/feedback.routes.js';
 
 // Initialize environment variables
@@ -25,6 +24,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', 'admin-id']
 }));
+
+//Cookie parser middleware with secret for signed cookies
+app.use(cookieParser(process.env.COOKIE_SECRET));
 
 // 3. Mount Routes
 app.use('/api/attendance', attendanceRoutes);

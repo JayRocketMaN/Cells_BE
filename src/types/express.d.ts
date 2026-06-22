@@ -15,3 +15,15 @@ declare global {
 }
 
 
+// Interface for your cookie structure
+export interface AppCookies {
+  sessionId?: string;
+  userToken?: string;
+  theme?: 'light' | 'dark';
+}
+
+
+
+
+
+
