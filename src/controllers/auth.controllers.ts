@@ -3,14 +3,16 @@ import * as authService from '../services/auth.services.js';
 import { UserRole } from '../types/database.js';
 import { CookieOptions } from 'express';
 
-// Centralized cookie settings for consistency
+
+// Centralized cookie settings modified to handle cross-site local testing safely
 const cookieOptions: CookieOptions = {
   httpOnly: true,                                 // Shields the cookie from client-side JS (XSS defense)
-  secure: process.env.NODE_ENV === 'production', // true over HTTPS in production, false in local dev
-  sameSite: 'lax',                                // Basic CSRF protection mitigation
+  secure: true,                                   // 💡 FORCE TRUE: Mandatory requirement for SameSite: 'none'
+  sameSite: 'none',                               // 👈 CHANGED: Directs the browser to allow cross-site cookie attachment
   maxAge: 24 * 60 * 60 * 1000,                    // 1-day life expectancy in milliseconds
   path: '/',                                      // Available routing scope across your domain
 };
+
 
 export const register = async (req: Request, res: Response) => {
   try {
