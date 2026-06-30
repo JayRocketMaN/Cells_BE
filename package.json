@@ -2,9 +2,9 @@
   "name": "cell-apis",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/server.js",
+  "main": "server.js",
   "scripts": {
-    "build": "esbuild server.ts --bundle --platform=node --format=esm --target=node20 --outfile=dist/server.js",
+    "build": "esbuild server.ts --bundle --platform=node --format=esm --target=node20 --packages=external --outfile=dist/server.js",
     "start": "node dist/server.js",
     "dev": "tsx watch server.ts",
     "typecheck": "tsc --noEmit"
@@ -16,20 +16,18 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.105.3",
     "bcryptjs": "^3.0.3",
-    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "cookie-parser": "^1.4.7"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "@types/cookie-parser": "^1.4.7",
-    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.6",
-    "@types/jsonwebtoken": "^9.0.8",
     "@types/node": "^25.9.1",
     "esbuild": "^0.28.1",
+    "@types/cookie-parser": "^1.4.7",
     "typescript": "^6.0.3"
   }
 }
