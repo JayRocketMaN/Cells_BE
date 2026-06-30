@@ -22,7 +22,8 @@ app.use(cors({
     'http://localhost:3026',
     ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'admin-id']
+  allowedHeaders: ['Content-Type', 'Authorization', 'admin-id'],
+  credentials: true
 }));
 
 //Cookie parser middleware with secret for signed cookies
